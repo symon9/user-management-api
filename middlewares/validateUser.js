@@ -3,21 +3,21 @@ function validateUser(req, res, next) {
 
   if (!name || name.trim().length < 2) {
     return res.status(400).json({
-      success: false,
+      status: "error",
       message: "Name must be at least 2 characters",
     });
   }
 
   if (!email || !email.includes("@")) {
     return res.status(400).json({
-      success: false,
+      status: "error",
       message: "Valid email required",
     });
   }
 
   if (!age || age <= 0) {
     return res.status(400).json({
-      success: false,
+      status: "error",
       message: "Age must be positive",
     });
   }

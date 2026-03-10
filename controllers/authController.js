@@ -19,7 +19,7 @@ async function register(req, res) {
     );
 
     res.status(201).json({
-      success: true,
+      status: "success",
       message: "User registered successfully",
       data: {
         id: user._id,
@@ -32,13 +32,13 @@ async function register(req, res) {
   } catch (error) {
     if (error.code === 11000) {
       return res.status(409).json({
-        success: false,
+        status: "error",
         message: "Email already registered",
       });
     }
 
     res.status(400).json({
-      success: false,
+      status: "error",
       message: error.message,
     });
   }
@@ -53,7 +53,7 @@ async function login(req, res) {
 
     if (!user) {
       return res.status(401).json({
-        success: false,
+        status: "error",
         message: "Invalid email or password",
       });
     }
@@ -62,7 +62,7 @@ async function login(req, res) {
 
     if (!isMatch) {
       return res.status(401).json({
-        success: false,
+        status: "error",
         message: "Invalid email or password",
       });
     }
@@ -75,7 +75,7 @@ async function login(req, res) {
     );
 
     res.status(200).json({
-      success: true,
+      status: "success",
       message: "Login successful",
       data: {
         id: user._id,
@@ -87,7 +87,7 @@ async function login(req, res) {
     });
   } catch (error) {
     res.status(500).json({
-      success: false,
+      status: "error",
       message: error.message,
     });
   }

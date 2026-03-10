@@ -22,7 +22,7 @@ async function getUsers(req, res) {
 
     const hasPagination = page || limit;
     const responseData = {
-      success: true,
+      status: "success",
       count: users.length,
       data: users,
     };
@@ -34,7 +34,7 @@ async function getUsers(req, res) {
 
     res.status(200).json(responseData);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ status: "error", message: error.message });
   }
 }
 
@@ -45,12 +45,12 @@ async function getUsersSortedByAge(req, res) {
     const users = await User.find({}).sort({ age: 1 }).select("-password");
 
     res.status(200).json({
-      success: true,
+      status: "success",
       count: users.length,
       data: users,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ status: "error", message: error.message });
   }
 }
 
@@ -68,11 +68,11 @@ async function getUserStats(req, res) {
     }, {}); // Start with an empty object {}
 
     res.status(200).json({
-      success: true,
+      status: "success",
       data: stats,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ status: "error", message: error.message });
   }
 }
 
@@ -83,17 +83,17 @@ async function getUser(req, res) {
 
     if (!user) {
       return res.status(404).json({
-        success: false,
+        status: "error",
         message: "User not found",
       });
     }
 
     res.status(200).json({
-      success: true,
+      status: "success",
       data: user,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ status: "error", message: error.message });
   }
 }
 
@@ -103,7 +103,7 @@ async function addUser(req, res) {
     const newUser = await User.create(req.body);
 
     res.status(201).json({
-      success: true,
+      status: "success",
       message: "User created",
       data: {
         _id: newUser._id,
@@ -118,13 +118,13 @@ async function addUser(req, res) {
   } catch (error) {
     if (error.code === 11000) {
       return res.status(409).json({
-        success: false,
+        status: "error",
         message: "Email already exists",
       });
     }
 
     res.status(400).json({
-      success: false,
+      status: "error",
       message: error.message,
     });
   }
@@ -137,18 +137,18 @@ async function editUser(req, res) {
 
     if (!updated) {
       return res.status(404).json({
-        success: false,
+        status: "error",
         message: "User not found",
       });
     }
 
     res.status(200).json({
-      success: true,
+      status: "success",
       message: "User updated",
       data: updated,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(400).json({ status: "error", message: error.message });
   }
 }
 
@@ -159,17 +159,17 @@ async function removeUser(req, res) {
 
     if (!deleted) {
       return res.status(404).json({
-        success: false,
+        status: "error",
         message: "User not found",
       });
     }
 
     res.status(200).json({
-      success: true,
+      status: "success",
       message: "User deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ status: "error", message: error.message });
   }
 }
 
