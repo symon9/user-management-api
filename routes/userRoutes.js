@@ -12,6 +12,10 @@ const {
 } = require("../controllers/userController");
 
 const validateUser = require("../middlewares/validateUser");
+const authMiddleware = require("../middlewares/authMiddleware");
+
+// Apply authMiddleware to all routes below it
+router.use(authMiddleware);
 
 router.get("/", getUsers);
 router.get("/sorted/by-age", getUsersSortedByAge);
