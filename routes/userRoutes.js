@@ -1,11 +1,21 @@
 const express = require("express");
 const router = express.Router();
 
-const { getUsers, getUser, addUser, editUser, removeUser } = require("../controllers/userController");
+const {
+  getUsers,
+  getUsersSortedByAge,
+  getUserStats,
+  getUser,
+  addUser,
+  editUser,
+  removeUser,
+} = require("../controllers/userController");
 
 const validateUser = require("../middlewares/validateUser");
 
 router.get("/", getUsers);
+router.get("/sorted/by-age", getUsersSortedByAge);
+router.get("/stats/count", getUserStats);
 router.get("/:id", getUser);
 router.post("/", validateUser, addUser);
 router.put("/:id", editUser);
