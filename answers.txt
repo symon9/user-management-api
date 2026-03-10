@@ -1,21 +1,28 @@
 5. What is Mongoose and why do we use it instead of the native MongoDB driver? What does it give us that the driver does not?
+
 Mongoose is an Object Data Modeling (ODM) library for MongoDB and Node.js. We use it instead of the native MongoDB driver because it provides a more structured and intuitive way to interact with the database. Specifically, Mongoose gives us schema validation (enforcing data types and required fields), middleware (pre/post hooks for things like password hashing), plugins, and a cleaner, chainable API for querying, which the lower-level native driver does not provide out of the box.
 
 6. What is a Mongoose Schema? How does it differ from what we did with the users.json file in the previous version of this exercise?
+
 A Mongoose Schema is a configuration object that defines the structure of documents within a MongoDB collection. It specifies the fields, their data types, default values, and validation rules. This differs significantly from using a `users.json` file, which was just a static text file storing raw arrays of objects without any enforced structure, rules, or built-in methods for data validation, querying, saving, or relationships.
 
 7. In this project, the unique: true rule on the email field in the Schema means MongoDB will automatically reject duplicate emails. But we also handle error code 11000 in the controller. Why do we need both the schema rule AND the error handler?
+
 We need the schema rule (`unique: true`) to tell the underlying MongoDB database to build a unique index, physically preventing duplicate data at the database level. However, when a duplicate insertion is attempted, MongoDB throws an error (code 11000). We need the error handler in our controller to explicitly catch this raw database error and translate it into a friendly, readable HTTP response (like a 409 Conflict or 400 Bad Request with "Email already exists") for the client, preventing the application from simply crashing or returning a generic, unhelpful 500 internal server error.
 
 8. What would happen if you called connectDB() after app.listen()? Would there be any problems? Explain your reasoning.
+
 If you called `connectDB()` after `app.listen()`, the server would start accepting incoming HTTP requests before the database connection was fully established. Any early requests that rely on querying or writing to the database would likely fail, hang, or throw errors because the database connection driver would not be ready. It is a best practice to connect to the database first, and only start listening for requests once the connection is successful.
 
 9. Why is it important to store your MONGO_URI in a .env file rather than writing it directly in db.js?
+
 It is crucial from a security standpoint. The connection URI almost always contains sensitive credentials (database username, password, and cluster host details). Hardcoding it in `db.js` means those credentials would be exposed to anyone with access to the codebase (e.g., if the code is pushed to a public GitHub repository). Storing it in a `.env` file ensures the credentials stay strictly on the local machine or server environment, as `.env` files are excluded from version control via `.gitignore`.
 
 10. In the login controller, we return the same error message ("Invalid email or password") whether the email does not exist OR the password is wrong. Why is this better from a security perspective than returning specific messages like "User not found" or "Incorrect password"?
+
 This approach prevents malicious actors from performing "user enumeration." If the API returned "User not found," an attacker could test thousands of emails to silently discover which ones are registered in the system. If it returned "Incorrect password," they would know they found a valid email and could then focus entirely on brute-forcing the password. Returning a generic message avoids leaking any information about the validity of the email address.
 
-11. The register controller uses new User() followed by user.save(), while the CRUD controller uses User.create(). Both save a document — what is the key difference, and why does it matter for password hashing?
+11. The register controller uses new User() followed by user.save(), while the CRUD controller uses User.create(). Both save a document, what is the key difference, and why does it matter for password hashing?
+
 `User.create()` is a model-level (static) method that takes a plain JavaScript object, creates a document instance, and saves it to the database all in one single step (it internally calls `new Model(doc).save()`). `new User().save()` separates the instantiation and the saving into two steps. 
-From a password hashing perspective, *both* correctly trigger the `pre('save')` middleware, resulting in a hashed password. The key difference in our controllers is more about how the data is handled before saving: specifically, the register controller explicitly extracts distinct fields (`{ name, email, password, age, role }`) to create the instance, preventing users from injecting unexpected data. The CRUD controller's `User.create(req.body)` passes the entire request body directly, assuming an admin is using it securely.
+From a password hashing perspective, both correctly trigger the `pre('save')` middleware, resulting in a hashed password. The key difference in our controllers is more about how the data is handled before saving: specifically, the register controller explicitly extracts distinct fields (`{ name, email, password, age, role }`) to create the instance, preventing users from injecting unexpected data. The CRUD controller's `User.create(req.body)` passes the entire request body directly, assuming an admin is using it securely.

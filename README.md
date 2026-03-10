@@ -7,7 +7,6 @@ This project demonstrates CRUD operations, secure JWT token-based authentication
 
 - **JWT Authentication:** Secure user registration and login utilizing JSON Web Tokens.
 - **Protected Routes:** Middleware to restrict access to user management endpoints.
-- **JSend Standard Responses:** All API responses adhere to a consistent `{ "status": "...", "data": ... }` structure.
 - **Advanced Querying:** Support for filtering users by role (`?role=admin`).
 - **Data Sorting:** Dedicated endpoint to fetch users sorted by age.
 - **Pagination:** Query parameter support for paginating user data (`?page=1&limit=10`).
