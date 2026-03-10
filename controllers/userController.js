@@ -14,8 +14,8 @@ async function getUsers(req, res) {
     // Calculate how many documents to skip to get to the requested page
     const skip = (pageQuery - 1) * limitQuery;
 
-    // Query the database with the filter, then apply skip and limit for pagination
-    const users = await User.find(filter).skip(skip).limit(limitQuery);
+    // Query the database with the filter, then apply skip and limit for pagination, returning without the password
+    const users = await User.find(filter).skip(skip).limit(limitQuery).select("-password");
     
     // Count the total number of documents that match the filter (needed for pagination metadata)
     const total = await User.countDocuments(filter);
@@ -41,8 +41,8 @@ async function getUsers(req, res) {
 // Get users sorted by age (youngest to oldest)
 async function getUsersSortedByAge(req, res) {
   try {
-    // Find all users and sort them by age in ascending order (1 means ascending, -1 means descending)
-    const users = await User.find({}).sort({ age: 1 });
+    // Find all users and sort them by age in ascending order (1 means ascending, -1 means descending), without passwords
+    const users = await User.find({}).sort({ age: 1 }).select("-password");
 
     res.status(200).json({
       success: true,
@@ -79,7 +79,7 @@ async function getUserStats(req, res) {
 // Get user by ID
 async function getUser(req, res) {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).select("-password");
 
     if (!user) {
       return res.status(404).json({
@@ -105,7 +105,15 @@ async function addUser(req, res) {
     res.status(201).json({
       success: true,
       message: "User created",
-      data: newUser,
+      data: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        age: newUser.age,
+        role: newUser.role,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
+      },
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -125,7 +133,7 @@ async function addUser(req, res) {
 // update user by ID
 async function editUser(req, res) {
   try {
-    const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).select("-password");
 
     if (!updated) {
       return res.status(404).json({
